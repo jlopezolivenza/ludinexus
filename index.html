@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ludinexus — Juegos · Rol · Wargames</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold:   { DEFAULT: '#F1A224', light: '#FFB84A', dark: '#C07A10' },
+            flame:  { DEFAULT: '#DA6635', light: '#F07850', dark: '#A84820' },
+            metal:  '#978666',
+            steel:  { DEFAULT: '#545A66', dark: '#2A2E38' },
+            arcane: '#497293',
+            ink:    '#0E0C0A',
+          },
+          fontFamily: {
+            display: ['"Cinzel Decorative"', 'serif'],
+            heading: ['Cinzel', 'serif'],
+            body:    ['Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #0E0C0A;
+      font-family: 'Roboto', sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── Logo medallion (handles white-bg PNG) ──────────── */
+    .logo-medallion {
+      background: radial-gradient(ellipse at 40% 35%, #FAF3DC 0%, #EDD898 55%, #D4A84B 100%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow:
+        0 0 0 2px rgba(241,162,36,0.7),
+        0 0 0 5px rgba(241,162,36,0.18),
+        0 0 70px rgba(241,162,36,0.38),
+        0 12px 40px rgba(0,0,0,0.65);
+      overflow: hidden;
+    }
+    .logo-medallion img { mix-blend-mode: multiply; display: block; }
+
+    /* ── Grain overlay ──────────────────────────────────── */
+    #grain {
+      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 200px 200px;
+      opacity: 0.028; mix-blend-mode: overlay;
+    }
+
+    /* ── Buttons ────────────────────────────────────────── */
+    .btn-gold {
+      display: inline-block;
+      background: linear-gradient(135deg, #F1A224 0%, #DA6635 100%);
+      color: #0E0C0A;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 13px 32px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
+      box-shadow: 0 4px 20px rgba(241,162,36,0.28), 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .btn-gold:hover  { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 32px rgba(241,162,36,0.42), 0 4px 16px rgba(0,0,0,0.6); }
+    .btn-gold:active { transform: translateY(0) scale(0.98); }
+    .btn-gold:focus-visible { outline: 2px solid #F1A224; outline-offset: 3px; }
+
+    .btn-outline {
+      display: inline-block;
+      border: 1px solid rgba(241,162,36,0.35);
+      color: #F1A224;
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 13px 32px;
+      border-radius: 7px;
+      cursor: pointer;
+      background: transparent;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .btn-outline:hover  { background-color: rgba(241,162,36,0.08); border-color: rgba(241,162,36,0.65); transform: translateY(-3px); }
+    .btn-outline:active { transform: translateY(0); }
+    .btn-outline:focus-visible { outline: 2px solid #F1A224; outline-offset: 3px; }
+
+    /* ── Nav ────────────────────────────────────────────── */
+    .nav-link {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .nav-link:hover       { color: #F1A224; }
+    .nav-link:focus-visible { outline: 2px solid #F1A224; outline-offset: 3px; border-radius: 2px; }
+
+    /* ── Cards ──────────────────────────────────────────── */
+    .card {
+      background: linear-gradient(145deg, rgba(22,18,13,0.96) 0%, rgba(16,14,10,0.98) 100%);
+      border: 1px solid rgba(241,162,36,0.13);
+      border-radius: 14px;
+      transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), border-color 0.28s ease, box-shadow 0.28s ease;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+    }
+    .card:hover {
+      transform: translateY(-7px);
+      border-color: rgba(241,162,36,0.35);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 30px rgba(241,162,36,0.08);
+    }
+
+    /* ── Section heading accent ─────────────────────────── */
+    .h-accent {
+      position: relative; display: inline-block;
+    }
+    .h-accent::after {
+      content: '';
+      position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+      width: 56px; height: 2px;
+      background: linear-gradient(90deg, #F1A224, #DA6635);
+      border-radius: 2px;
+    }
+
+    /* ── Stat gradient text ─────────────────────────────── */
+    .stat-num {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 900;
+      background: linear-gradient(135deg, #F1A224 30%, #DA6635 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Footer links ───────────────────────────────────── */
+    .foot-link {
+      font-family: 'Roboto', sans-serif;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.38);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .foot-link:hover { color: rgba(241,162,36,0.8); }
+    .foot-link:focus-visible { outline: 1px solid #F1A224; }
+
+    /* ── Social icon buttons ────────────────────────────── */
+    .social-btn {
+      width: 38px; height: 38px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9px;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      font-size: 13px; font-weight: 700;
+      transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    }
+    .social-btn:hover { border-color: rgba(241,162,36,0.5); color: #F1A224; background: rgba(241,162,36,0.06); }
+    .social-btn:focus-visible { outline: 2px solid #F1A224; outline-offset: 2px; }
+
+    /* ── Event tag ──────────────────────────────────────── */
+    .tag-rol    { background: rgba(218,102,53,0.88); color: #0E0C0A; }
+    .tag-war    { background: rgba(73,114,147,0.88);  color: #fff;    }
+    .tag-mesa   { background: rgba(241,162,36,0.88); color: #0E0C0A; }
+
+    /* ── Scrollbar ──────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0E0C0A; }
+    ::-webkit-scrollbar-thumb { background: #3A2E1A; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #F1A224; }
+
+    /* ── Responsive tweaks ──────────────────────────────── */
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr !important; }
+      .footer-grid   { grid-template-columns: 1fr 1fr !important; }
+      .stats-grid    { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 480px) {
+      .footer-grid { grid-template-columns: 1fr !important; }
+      .stats-grid  { grid-template-columns: 1fr 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Grain texture overlay -->
+<div id="grain"></div>
+
+<!-- ═══════════════════════════════ NAV ════════════════════════════════ -->
+<nav style="position:fixed;top:0;left:0;right:0;z-index:200;
+            backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+            background:rgba(14,12,10,0.82);
+            border-bottom:1px solid rgba(241,162,36,0.1);">
+  <div style="max-width:1200px;margin:0 auto;padding:0 28px;
+              display:flex;align-items:center;justify-content:space-between;height:72px;">
+
+    <a href="#" style="flex-shrink:0;display:flex;align-items:center;">
+      <div class="logo-medallion" style="width:46px;height:46px;">
+        <img src="brand_assets/LOGO.png" alt="Ludinexus" style="width:42px;height:42px;object-fit:contain;">
+      </div>
+    </a>
+
+    <div style="display:flex;gap:36px;align-items:center;">
+      <a href="#comunidad" class="nav-link">Comunidad</a>
+      <a href="#juegos"    class="nav-link">Juegos</a>
+      <a href="#eventos"   class="nav-link">Eventos</a>
+      <a href="#nosotros"  class="nav-link">Nosotros</a>
+    </div>
+
+    <a href="#unirse" class="btn-gold" style="padding:10px 24px;font-size:0.75rem;">Unirse</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section style="min-height:100vh;position:relative;display:flex;align-items:center;
+                justify-content:center;overflow:hidden;padding:120px 28px 80px;">
+
+  <!-- Background gradients -->
+  <div style="position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 90% 70% at 25% 35%, rgba(241,162,36,0.09) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 75% 70%, rgba(218,102,53,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 60% at 50% 110%, rgba(73,114,147,0.06) 0%, transparent 55%),
+      #0E0C0A;
+    pointer-events:none;"></div>
+
+  <!-- Faint decorative ring -->
+  <div style="position:absolute;width:700px;height:700px;border-radius:50%;
+    border:1px solid rgba(241,162,36,0.06);
+    top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;"></div>
+  <div style="position:absolute;width:500px;height:500px;border-radius:50%;
+    border:1px solid rgba(241,162,36,0.04);
+    top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;"></div>
+
+  <!-- Content -->
+  <div style="position:relative;z-index:2;text-align:center;max-width:860px;">
+    <div class="logo-medallion"
+         style="width:clamp(180px,22vw,240px);height:clamp(180px,22vw,240px);margin:0 auto 40px;">
+      <img src="brand_assets/LOGO.png" alt="Ludinexus"
+           style="width:92%;height:92%;object-fit:contain;">
+    </div>
+
+    <h1 style="font-family:'Cinzel Decorative',serif;
+               font-size:clamp(2rem,5.5vw,3.75rem);
+               font-weight:900;letter-spacing:-0.025em;line-height:1.12;
+               margin-bottom:18px;
+               background:linear-gradient(145deg,#FFB84A 0%,#FFFFFF 45%,#DA6635 100%);
+               -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+               background-clip:text;">
+      Tu Comunidad Épica
+    </h1>
+
+    <p style="font-family:'Cinzel',serif;
+              font-size:clamp(0.85rem,1.8vw,1.05rem);
+              letter-spacing:0.35em;text-transform:uppercase;
+              color:rgba(241,162,36,0.75);margin-bottom:28px;">
+      Juegos &nbsp;·&nbsp; Rol &nbsp;·&nbsp; Wargames
+    </p>
+
+    <p style="font-family:'Roboto',sans-serif;
+              font-size:clamp(0.95rem,1.6vw,1.1rem);
+              line-height:1.75;color:rgba(255,255,255,0.55);
+              max-width:580px;margin:0 auto 44px;">
+      Únete a la comunidad de referencia para jugadores apasionados de juegos de
+      mesa, rol y wargames. Encuentra tu tribu, organiza partidas y vive aventuras épicas.
+    </p>
+
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="#unirse"    class="btn-gold">Únete Ahora</a>
+      <a href="#comunidad" class="btn-outline">Explorar</a>
+    </div>
+  </div>
+
+  <!-- Scroll cue -->
+  <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+              display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0.35;">
+    <div style="width:1px;height:44px;background:linear-gradient(180deg,rgba(241,162,36,0.8),transparent);"></div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════ STATS ═══════════════════════════════ -->
+<section style="padding:56px 28px;
+                background:rgba(18,15,10,0.95);
+                border-top:1px solid rgba(241,162,36,0.1);
+                border-bottom:1px solid rgba(241,162,36,0.1);">
+  <div class="stats-grid"
+       style="max-width:960px;margin:0 auto;
+              display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;
+              gap:0;align-items:center;text-align:center;">
+
+    <div style="padding:16px 24px;">
+      <div class="stat-num" style="font-size:clamp(2rem,4vw,2.8rem);line-height:1;">2.4K+</div>
+      <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.16em;
+                  text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:8px;">Miembros Activos</div>
+    </div>
+
+    <div style="height:48px;background:linear-gradient(180deg,transparent,rgba(241,162,36,0.28),transparent);"></div>
+
+    <div style="padding:16px 24px;">
+      <div class="stat-num" style="font-size:clamp(2rem,4vw,2.8rem);line-height:1;">850+</div>
+      <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.16em;
+                  text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:8px;">Juegos Jugados</div>
+    </div>
+
+    <div style="height:48px;background:linear-gradient(180deg,transparent,rgba(241,162,36,0.28),transparent);"></div>
+
+    <div style="padding:16px 24px;">
+      <div class="stat-num" style="font-size:clamp(2rem,4vw,2.8rem);line-height:1;">120+</div>
+      <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.16em;
+                  text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:8px;">Eventos Realizados</div>
+    </div>
+
+    <div style="height:48px;background:linear-gradient(180deg,transparent,rgba(241,162,36,0.28),transparent);"></div>
+
+    <div style="padding:16px 24px;">
+      <div class="stat-num" style="font-size:clamp(2rem,4vw,2.8rem);line-height:1;">15</div>
+      <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.16em;
+                  text-transform:uppercase;color:rgba(255,255,255,0.42);margin-top:8px;">Ciudades</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════ PILLARS / JUEGOS ══════════════════════════ -->
+<section id="juegos" style="padding:108px 28px;position:relative;overflow:hidden;">
+
+  <div style="position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 50% 0%, rgba(73,114,147,0.07) 0%, transparent 65%);
+    pointer-events:none;"></div>
+
+  <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;">
+
+    <div style="text-align:center;margin-bottom:72px;">
+      <p style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.3em;
+                text-transform:uppercase;color:#DA6635;margin-bottom:14px;">Lo que encontrarás</p>
+      <h2 class="h-accent"
+          style="font-family:'Cinzel Decorative',serif;
+                 font-size:clamp(1.6rem,3.8vw,2.6rem);
+                 font-weight:900;letter-spacing:-0.03em;color:#FFFFFF;">
+        Un Universo de Juegos
+      </h2>
+      <p style="font-family:'Roboto',sans-serif;font-size:1rem;line-height:1.75;
+                color:rgba(255,255,255,0.45);max-width:480px;margin:28px auto 0;">
+        Tres mundos, una comunidad. Encuentra tu pasión en el tablero, el dado y la estrategia.
+      </p>
+    </div>
+
+    <div class="features-grid"
+         style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+
+      <!-- Card: Juegos de Mesa -->
+      <div class="card" style="padding:40px 32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;right:0;width:160px;height:160px;
+                    background:radial-gradient(ellipse at top right, rgba(241,162,36,0.07), transparent);
+                    pointer-events:none;"></div>
+        <div style="width:54px;height:54px;
+                    background:rgba(241,162,36,0.09);
+                    border:1px solid rgba(241,162,36,0.28);
+                    border-radius:12px;display:flex;align-items:center;justify-content:center;
+                    margin-bottom:24px;font-size:26px;">🎲</div>
+        <h3 style="font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;
+                   letter-spacing:-0.01em;color:#F1A224;margin-bottom:12px;">Juegos de Mesa</h3>
+        <p style="font-family:'Roboto',sans-serif;font-size:0.92rem;line-height:1.75;
+                  color:rgba(255,255,255,0.5);">
+          Desde clásicos atemporales hasta los últimos lanzamientos. Descubre nuevos juegos,
+          comparte reseñas y encuentra oponentes a tu nivel.
+        </p>
+        <a href="#" style="display:inline-block;margin-top:26px;
+                           font-family:'Cinzel',serif;font-size:0.75rem;
+                           letter-spacing:0.1em;text-transform:uppercase;
+                           color:#F1A224;text-decoration:none;
+                           transition:opacity 0.2s ease;">
+          Explorar juegos →
+        </a>
+      </div>
+
+      <!-- Card: Rol -->
+      <div class="card" style="padding:40px 32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;right:0;width:160px;height:160px;
+                    background:radial-gradient(ellipse at top right, rgba(218,102,53,0.07), transparent);
+                    pointer-events:none;"></div>
+        <div style="width:54px;height:54px;
+                    background:rgba(218,102,53,0.09);
+                    border:1px solid rgba(218,102,53,0.28);
+                    border-radius:12px;display:flex;align-items:center;justify-content:center;
+                    margin-bottom:24px;font-size:26px;">📖</div>
+        <h3 style="font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;
+                   letter-spacing:-0.01em;color:#DA6635;margin-bottom:12px;">Juegos de Rol</h3>
+        <p style="font-family:'Roboto',sans-serif;font-size:0.92rem;line-height:1.75;
+                  color:rgba(255,255,255,0.5);">
+          Aventuras épicas, mazmorras peligrosas y universos infinitos. Conecta con másters
+          y jugadores para campañas únicas e inolvidables.
+        </p>
+        <a href="#" style="display:inline-block;margin-top:26px;
+                           font-family:'Cinzel',serif;font-size:0.75rem;
+                           letter-spacing:0.1em;text-transform:uppercase;
+                           color:#DA6635;text-decoration:none;
+                           transition:opacity 0.2s ease;">
+          Empezar aventura →
+        </a>
+      </div>
+
+      <!-- Card: Wargames -->
+      <div class="card" style="padding:40px 32px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;right:0;width:160px;height:160px;
+                    background:radial-gradient(ellipse at top right, rgba(73,114,147,0.09), transparent);
+                    pointer-events:none;"></div>
+        <div style="width:54px;height:54px;
+                    background:rgba(73,114,147,0.09);
+                    border:1px solid rgba(73,114,147,0.28);
+                    border-radius:12px;display:flex;align-items:center;justify-content:center;
+                    margin-bottom:24px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#497293" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M8 8l-5 5"/></svg>
+        </div>
+        <h3 style="font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;
+                   letter-spacing:-0.01em;color:#497293;margin-bottom:12px;">Wargames</h3>
+        <p style="font-family:'Roboto',sans-serif;font-size:0.92rem;line-height:1.75;
+                  color:rgba(255,255,255,0.5);">
+          Batallas estratégicas, miniaturas pintadas y torneos épicos. Demuestra tu genio
+          táctico y lidera tus ejércitos a la victoria.
+        </p>
+        <a href="#" style="display:inline-block;margin-top:26px;
+                           font-family:'Cinzel',serif;font-size:0.75rem;
+                           letter-spacing:0.1em;text-transform:uppercase;
+                           color:#497293;text-decoration:none;
+                           transition:opacity 0.2s ease;">
+          A la batalla →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ COMMUNITY FEATURES ═════════════════════════ -->
+<section id="comunidad"
+         style="padding:108px 28px;position:relative;overflow:hidden;
+                background:linear-gradient(180deg,#0E0C0A 0%,#110E09 100%);">
+
+  <div style="position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 55% 50% at 10% 60%, rgba(241,162,36,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 20%, rgba(218,102,53,0.04) 0%, transparent 60%);
+    pointer-events:none;"></div>
+
+  <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;
+              display:grid;grid-template-columns:1fr 1fr;gap:88px;align-items:center;">
+
+    <!-- LEFT: text & features -->
+    <div>
+      <p style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.3em;
+                text-transform:uppercase;color:#F1A224;margin-bottom:16px;">Por qué Ludinexus</p>
+      <h2 style="font-family:'Cinzel Decorative',serif;
+                 font-size:clamp(1.5rem,3.2vw,2.3rem);
+                 font-weight:900;letter-spacing:-0.03em;
+                 color:#FFFFFF;line-height:1.2;margin-bottom:20px;">
+        Más que una<br>comunidad. Un hogar.
+      </h2>
+      <p style="font-family:'Roboto',sans-serif;font-size:0.98rem;line-height:1.75;
+                color:rgba(255,255,255,0.48);margin-bottom:40px;">
+        Ludinexus nació para reunir a todos los apasionados de los juegos de mesa, el rol y
+        las wargames en un solo lugar. Aquí encontrarás compañeros, recursos y eventos que
+        harán vibrar tu alma de jugador.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:22px;">
+
+        <div style="display:flex;gap:18px;align-items:flex-start;">
+          <div style="width:44px;height:44px;min-width:44px;
+                      background:rgba(241,162,36,0.08);
+                      border:1px solid rgba(241,162,36,0.22);
+                      border-radius:10px;display:flex;align-items:center;justify-content:center;
+                      font-size:19px;">🗺️</div>
+          <div>
+            <h4 style="font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
+                       color:#FFFFFF;margin-bottom:5px;">Encuentra jugadores cerca</h4>
+            <p style="font-family:'Roboto',sans-serif;font-size:0.875rem;line-height:1.65;
+                      color:rgba(255,255,255,0.45);">
+              Localiza a otros jugadores en tu ciudad y organiza partidas presenciales o remotas.
+            </p>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:18px;align-items:flex-start;">
+          <div style="width:44px;height:44px;min-width:44px;
+                      background:rgba(218,102,53,0.08);
+                      border:1px solid rgba(218,102,53,0.22);
+                      border-radius:10px;display:flex;align-items:center;justify-content:center;
+                      font-size:19px;">📚</div>
+          <div>
+            <h4 style="font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
+                       color:#FFFFFF;margin-bottom:5px;">Reseñas y recursos</h4>
+            <p style="font-family:'Roboto',sans-serif;font-size:0.875rem;line-height:1.65;
+                      color:rgba(255,255,255,0.45);">
+              Accede a miles de reseñas, tutoriales y recursos creados por la propia comunidad.
+            </p>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:18px;align-items:flex-start;">
+          <div style="width:44px;height:44px;min-width:44px;
+                      background:rgba(73,114,147,0.08);
+                      border:1px solid rgba(73,114,147,0.22);
+                      border-radius:10px;display:flex;align-items:center;justify-content:center;
+                      font-size:19px;">🏆</div>
+          <div>
+            <h4 style="font-family:'Cinzel',serif;font-size:0.92rem;font-weight:700;
+                       color:#FFFFFF;margin-bottom:5px;">Torneos y competiciones</h4>
+            <p style="font-family:'Roboto',sans-serif;font-size:0.875rem;line-height:1.65;
+                      color:rgba(255,255,255,0.45);">
+              Participa en torneos regulares y demuestra tu valía en la clasificación global.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: visual card -->
+    <div style="position:relative;">
+      <div style="border-radius:18px;overflow:hidden;position:relative;
+                  box-shadow:0 24px 64px rgba(0,0,0,0.65), 0 0 40px rgba(241,162,36,0.07);">
+        <img src="https://placehold.co/620x520/1A1510/3A2E1A?text=Comunidad+Ludinexus"
+             alt="Comunidad" style="width:100%;height:auto;display:block;opacity:0.75;">
+        <div style="position:absolute;inset:0;
+                    background:linear-gradient(to top, rgba(14,12,10,0.85) 0%, rgba(14,12,10,0.2) 50%, transparent 100%);"></div>
+        <!-- Badge -->
+        <div style="position:absolute;bottom:24px;left:24px;
+                    background:rgba(14,12,10,0.88);
+                    border:1px solid rgba(241,162,36,0.28);
+                    border-radius:12px;padding:14px 18px;
+                    backdrop-filter:blur(10px);">
+          <div class="stat-num" style="font-size:1.5rem;line-height:1;">2.4K</div>
+          <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.14em;
+                      text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">Miembros</div>
+        </div>
+        <!-- Second badge -->
+        <div style="position:absolute;top:24px;right:24px;
+                    background:rgba(14,12,10,0.88);
+                    border:1px solid rgba(218,102,53,0.28);
+                    border-radius:12px;padding:14px 18px;
+                    backdrop-filter:blur(10px);">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1.5rem;font-weight:900;
+                      color:#DA6635;line-height:1;">15</div>
+          <div style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.14em;
+                      text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">Ciudades</div>
+        </div>
+      </div>
+      <!-- Decorative rings -->
+      <div style="position:absolute;top:-22px;right:-22px;width:88px;height:88px;
+                  border:2px solid rgba(241,162,36,0.15);border-radius:50%;pointer-events:none;"></div>
+      <div style="position:absolute;top:-10px;right:-10px;width:44px;height:44px;
+                  border:1px solid rgba(241,162,36,0.1);border-radius:50%;pointer-events:none;"></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ EVENTS ═════════════════════════════════ -->
+<section id="eventos"
+         style="padding:108px 28px;position:relative;overflow:hidden;">
+
+  <div style="position:absolute;inset:0;
+    background:radial-gradient(ellipse 55% 60% at 85% 50%, rgba(241,162,36,0.05) 0%, transparent 65%);
+    pointer-events:none;"></div>
+
+  <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;">
+
+    <div style="text-align:center;margin-bottom:72px;">
+      <p style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.3em;
+                text-transform:uppercase;color:#DA6635;margin-bottom:14px;">Próximos eventos</p>
+      <h2 class="h-accent"
+          style="font-family:'Cinzel Decorative',serif;
+                 font-size:clamp(1.6rem,3.8vw,2.6rem);
+                 font-weight:900;letter-spacing:-0.03em;color:#FFFFFF;">
+        Únete a la Aventura
+      </h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
+
+      <!-- Event 1 -->
+      <div class="card" style="overflow:hidden;padding:0;">
+        <div style="position:relative;height:190px;overflow:hidden;">
+          <img src="https://placehold.co/480x200/1A1208/3A2E1A?text=Torneo+D%26D"
+               alt="Torneo D&D"
+               style="width:100%;height:100%;object-fit:cover;opacity:0.65;
+                      transition:transform 0.35s ease;">
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(to top, rgba(14,12,10,1) 0%, rgba(14,12,10,0.35) 50%, transparent 100%);"></div>
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(135deg,rgba(218,102,53,0.08),transparent);mix-blend-mode:multiply;"></div>
+          <span class="tag-rol"
+                style="position:absolute;top:16px;left:16px;
+                       font-family:'Cinzel',serif;font-size:0.66rem;
+                       font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+                       padding:4px 11px;border-radius:4px;">Rol</span>
+        </div>
+        <div style="padding:26px;">
+          <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;
+                      text-transform:uppercase;color:rgba(241,162,36,0.55);margin-bottom:9px;">
+            22 Mar 2026 · Madrid
+          </div>
+          <h4 style="font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;
+                     color:#FFFFFF;margin-bottom:9px;line-height:1.35;">
+            Gran Torneo de D&D: La Caverna del Dragón
+          </h4>
+          <p style="font-family:'Roboto',sans-serif;font-size:0.855rem;line-height:1.65;
+                    color:rgba(255,255,255,0.45);margin-bottom:20px;">
+            Equipos de 4 jugadores competirán en una mazmorra diseñada por nuestros mejores másters.
+          </p>
+          <a href="#" class="btn-outline" style="padding:9px 20px;font-size:0.72rem;">Ver detalles</a>
+        </div>
+      </div>
+
+      <!-- Event 2 -->
+      <div class="card" style="overflow:hidden;padding:0;">
+        <div style="position:relative;height:190px;overflow:hidden;">
+          <img src="https://placehold.co/480x200/0D1520/1A2A38?text=Warhammer+Cup"
+               alt="Warhammer Cup"
+               style="width:100%;height:100%;object-fit:cover;opacity:0.65;
+                      transition:transform 0.35s ease;">
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(to top, rgba(14,12,10,1) 0%, rgba(14,12,10,0.35) 50%, transparent 100%);"></div>
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(135deg,rgba(73,114,147,0.1),transparent);mix-blend-mode:multiply;"></div>
+          <span class="tag-war"
+                style="position:absolute;top:16px;left:16px;
+                       font-family:'Cinzel',serif;font-size:0.66rem;
+                       font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+                       padding:4px 11px;border-radius:4px;">Wargame</span>
+        </div>
+        <div style="padding:26px;">
+          <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;
+                      text-transform:uppercase;color:rgba(241,162,36,0.55);margin-bottom:9px;">
+            5 Abr 2026 · Barcelona
+          </div>
+          <h4 style="font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;
+                     color:#FFFFFF;margin-bottom:9px;line-height:1.35;">
+            Warhammer Spring Cup 2026
+          </h4>
+          <p style="font-family:'Roboto',sans-serif;font-size:0.855rem;line-height:1.65;
+                    color:rgba(255,255,255,0.45);margin-bottom:20px;">
+            El torneo de miniaturas más esperado del año. Presenta tu ejército y lucha por el trofeo.
+          </p>
+          <a href="#" class="btn-outline" style="padding:9px 20px;font-size:0.72rem;">Ver detalles</a>
+        </div>
+      </div>
+
+      <!-- Event 3 -->
+      <div class="card" style="overflow:hidden;padding:0;">
+        <div style="position:relative;height:190px;overflow:hidden;">
+          <img src="https://placehold.co/480x200/1A1208/2E2210?text=Festival+Ludinexus"
+               alt="Festival"
+               style="width:100%;height:100%;object-fit:cover;opacity:0.65;
+                      transition:transform 0.35s ease;">
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(to top, rgba(14,12,10,1) 0%, rgba(14,12,10,0.35) 50%, transparent 100%);"></div>
+          <div style="position:absolute;inset:0;
+                      background:linear-gradient(135deg,rgba(241,162,36,0.08),transparent);mix-blend-mode:multiply;"></div>
+          <span class="tag-mesa"
+                style="position:absolute;top:16px;left:16px;
+                       font-family:'Cinzel',serif;font-size:0.66rem;
+                       font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+                       padding:4px 11px;border-radius:4px;">Mesa</span>
+        </div>
+        <div style="padding:26px;">
+          <div style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;
+                      text-transform:uppercase;color:rgba(241,162,36,0.55);margin-bottom:9px;">
+            18 Abr 2026 · Valencia
+          </div>
+          <h4 style="font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;
+                     color:#FFFFFF;margin-bottom:9px;line-height:1.35;">
+            Festival Ludinexus: Juegos de Mesa
+          </h4>
+          <p style="font-family:'Roboto',sans-serif;font-size:0.855rem;line-height:1.65;
+                    color:rgba(255,255,255,0.45);margin-bottom:20px;">
+            Tres días de partidas, presentaciones y diversión con las últimas novedades del sector.
+          </p>
+          <a href="#" class="btn-outline" style="padding:9px 20px;font-size:0.72rem;">Ver detalles</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:52px;">
+      <a href="#" class="btn-outline" style="padding:13px 40px;">Ver todos los eventos →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════ CTA JOIN ══════════════════════════════ -->
+<section id="unirse"
+         style="padding:112px 28px;position:relative;overflow:hidden;">
+
+  <!-- Glow aura -->
+  <div style="position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 70% 80% at 50% 50%, rgba(241,162,36,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, rgba(218,102,53,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 50% at 80% 20%, rgba(73,114,147,0.05) 0%, transparent 55%);
+    pointer-events:none;"></div>
+  <!-- Top/bottom dividers -->
+  <div style="position:absolute;top:0;left:0;right:0;height:1px;
+              background:linear-gradient(90deg,transparent,rgba(241,162,36,0.28),transparent);"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:1px;
+              background:linear-gradient(90deg,transparent,rgba(241,162,36,0.28),transparent);"></div>
+
+  <div style="max-width:680px;margin:0 auto;text-align:center;position:relative;z-index:1;">
+
+    <div class="logo-medallion" style="width:96px;height:96px;margin:0 auto 36px;">
+      <img src="brand_assets/LOGO.png" alt="Ludinexus" style="width:90%;height:90%;object-fit:contain;">
+    </div>
+
+    <h2 style="font-family:'Cinzel Decorative',serif;
+               font-size:clamp(1.9rem,4.5vw,3.2rem);
+               font-weight:900;letter-spacing:-0.03em;
+               color:#FFFFFF;line-height:1.12;margin-bottom:22px;">
+      ¿Listo para la aventura?
+    </h2>
+
+    <p style="font-family:'Roboto',sans-serif;font-size:1.05rem;line-height:1.75;
+              color:rgba(255,255,255,0.5);margin-bottom:44px;">
+      Únete a más de 2.400 jugadores que ya forman parte de Ludinexus.
+      El tablero te espera.
+    </p>
+
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;">
+      <a href="#" class="btn-gold" style="padding:15px 52px;font-size:0.85rem;">Registrarse Gratis</a>
+      <a href="#" class="btn-outline" style="padding:15px 32px;font-size:0.85rem;">Discord →</a>
+    </div>
+
+    <p style="font-family:'Roboto',sans-serif;font-size:0.78rem;
+              color:rgba(255,255,255,0.25);letter-spacing:0.04em;">
+      Sin cuota · Acceso inmediato · Comunidad verificada
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ FOOTER ═════════════════════════════════ -->
+<footer id="nosotros"
+        style="padding:56px 28px 32px;
+               background:#080706;
+               border-top:1px solid rgba(241,162,36,0.07);">
+  <div style="max-width:1200px;margin:0 auto;">
+
+    <div class="footer-grid"
+         style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:52px;margin-bottom:52px;">
+
+      <!-- Brand -->
+      <div>
+        <div class="logo-medallion" style="width:50px;height:50px;margin-bottom:18px;">
+          <img src="brand_assets/LOGO.png" alt="Ludinexus" style="width:46px;height:46px;object-fit:contain;">
+        </div>
+        <p style="font-family:'Roboto',sans-serif;font-size:0.875rem;line-height:1.75;
+                  color:rgba(255,255,255,0.32);max-width:230px;">
+          La comunidad de referencia para jugadores de mesa, rol y wargames en España.
+        </p>
+        <div style="display:flex;gap:10px;margin-top:22px;">
+          <a href="#" class="social-btn" aria-label="Discord">D</a>
+          <a href="#" class="social-btn" aria-label="Twitter/X">X</a>
+          <a href="#" class="social-btn" aria-label="Instagram">IG</a>
+          <a href="#" class="social-btn" aria-label="YouTube">YT</a>
+        </div>
+      </div>
+
+      <!-- Juegos -->
+      <div>
+        <h5 style="font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
+                   letter-spacing:0.14em;text-transform:uppercase;color:#F1A224;margin-bottom:18px;">
+          Juegos
+        </h5>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="#" class="foot-link">Juegos de Mesa</a></li>
+          <li><a href="#" class="foot-link">Juegos de Rol</a></li>
+          <li><a href="#" class="foot-link">Wargames</a></li>
+          <li><a href="#" class="foot-link">Reseñas</a></li>
+        </ul>
+      </div>
+
+      <!-- Comunidad -->
+      <div>
+        <h5 style="font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
+                   letter-spacing:0.14em;text-transform:uppercase;color:#F1A224;margin-bottom:18px;">
+          Comunidad
+        </h5>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="#" class="foot-link">Foros</a></li>
+          <li><a href="#" class="foot-link">Eventos</a></li>
+          <li><a href="#" class="foot-link">Torneos</a></li>
+          <li><a href="#" class="foot-link">Discord</a></li>
+        </ul>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <h5 style="font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;
+                   letter-spacing:0.14em;text-transform:uppercase;color:#F1A224;margin-bottom:18px;">
+          Info
+        </h5>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="#" class="foot-link">Sobre Nosotros</a></li>
+          <li><a href="#" class="foot-link">Contacto</a></li>
+          <li><a href="#" class="foot-link">Privacidad</a></li>
+          <li><a href="#" class="foot-link">Términos</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="border-top:1px solid rgba(241,162,36,0.07);padding-top:26px;
+                display:flex;justify-content:space-between;align-items:center;
+                flex-wrap:wrap;gap:12px;">
+      <p style="font-family:'Roboto',sans-serif;font-size:0.78rem;
+                color:rgba(255,255,255,0.2);">
+        © 2026 Ludinexus. Todos los derechos reservados.
+      </p>
+      <p style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.14em;
+                color:rgba(241,162,36,0.28);">
+        Juegos · Rol · Wargames
+      </p>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>
