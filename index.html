@@ -607,10 +607,34 @@
       <!-- Event 1 -->
       <div class="card" style="overflow:hidden;padding:0;">
         <div style="position:relative;height:190px;overflow:hidden;">
-          <img src="https://placehold.co/480x200/1A1208/3A2E1A?text=Torneo+D%26D"
-               alt="Torneo D&D"
-               style="width:100%;height:100%;object-fit:cover;opacity:0.65;
+          <div style="width:100%;height:100%;
+                      background:linear-gradient(135deg,#1A0303 0%,#2D0606 60%,#1A0505 100%);
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
                       transition:transform 0.35s ease;">
+            <svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg" style="width:220px;height:auto;">
+              <!-- Decorative horizontal rule -->
+              <line x1="30" y1="18" x2="250" y2="18" stroke="#8B1010" stroke-width="1" opacity="0.6"/>
+              <!-- D&D logotype text -->
+              <text x="140" y="90" text-anchor="middle"
+                    font-family="Georgia,'Times New Roman',serif"
+                    font-size="78" font-weight="bold"
+                    fill="url(#ddGrad)" letter-spacing="-2">D&amp;D</text>
+              <!-- Subtitle -->
+              <text x="140" y="112" text-anchor="middle"
+                    font-family="Georgia,'Times New Roman',serif"
+                    font-size="11" letter-spacing="5"
+                    fill="rgba(180,40,40,0.75)">DUNGEONS &amp; DRAGONS</text>
+              <!-- Bottom rule -->
+              <line x1="30" y1="126" x2="250" y2="126" stroke="#8B1010" stroke-width="1" opacity="0.6"/>
+              <!-- Gradient def -->
+              <defs>
+                <linearGradient id="ddGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#E82020"/>
+                  <stop offset="100%" stop-color="#8B0000"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
           <div style="position:absolute;inset:0;
                       background:linear-gradient(to top, rgba(14,12,10,1) 0%, rgba(14,12,10,0.35) 50%, transparent 100%);"></div>
           <div style="position:absolute;inset:0;
@@ -641,10 +665,48 @@
       <!-- Event 2 -->
       <div class="card" style="overflow:hidden;padding:0;">
         <div style="position:relative;height:190px;overflow:hidden;">
-          <img src="https://placehold.co/480x200/0D1520/1A2A38?text=Warhammer+Cup"
-               alt="Warhammer Cup"
-               style="width:100%;height:100%;object-fit:cover;opacity:0.65;
+          <div style="width:100%;height:100%;
+                      background:linear-gradient(135deg,#0D0D0D 0%,#1A1010 60%,#0D0808 100%);
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
                       transition:transform 0.35s ease;">
+            <svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg" style="width:220px;height:auto;">
+              <defs>
+                <linearGradient id="whGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#CC1111"/>
+                  <stop offset="100%" stop-color="#6B0000"/>
+                </linearGradient>
+              </defs>
+              <!-- WARHAMMER text top -->
+              <text x="140" y="22" text-anchor="middle"
+                    font-family="Georgia,'Times New Roman',serif"
+                    font-size="13" letter-spacing="6" font-weight="bold"
+                    fill="rgba(200,30,30,0.9)">WARHAMMER</text>
+              <!-- Skull cranium -->
+              <ellipse cx="140" cy="72" rx="34" ry="28" fill="url(#whGrad)"/>
+              <!-- Eye sockets -->
+              <ellipse cx="126" cy="74" rx="9" ry="10" fill="#0D0D0D"/>
+              <ellipse cx="154" cy="74" rx="9" ry="10" fill="#0D0D0D"/>
+              <!-- Nasal cavity -->
+              <polygon points="137,88 143,88 140,96" fill="#0D0D0D"/>
+              <!-- Jaw -->
+              <rect x="116" y="96" width="48" height="10" rx="3" fill="url(#whGrad)"/>
+              <!-- Teeth gaps -->
+              <rect x="123" y="96" width="4" height="10" fill="#0D0D0D"/>
+              <rect x="131" y="96" width="4" height="10" fill="#0D0D0D"/>
+              <rect x="139" y="96" width="4" height="10" fill="#0D0D0D"/>
+              <rect x="147" y="96" width="4" height="10" fill="#0D0D0D"/>
+              <rect x="155" y="96" width="4" height="10" fill="#0D0D0D"/>
+              <!-- 40,000 text -->
+              <text x="140" y="126" text-anchor="middle"
+                    font-family="Georgia,'Times New Roman',serif"
+                    font-size="20" font-weight="bold" letter-spacing="3"
+                    fill="rgba(180,30,30,0.85)">40,000</text>
+              <!-- Decorative dots -->
+              <text x="140" y="143" text-anchor="middle"
+                    font-family="Georgia,serif" font-size="10" letter-spacing="8"
+                    fill="rgba(150,20,20,0.5)">· · · · ·</text>
+            </svg>
+          </div>
           <div style="position:absolute;inset:0;
                       background:linear-gradient(to top, rgba(14,12,10,1) 0%, rgba(14,12,10,0.35) 50%, transparent 100%);"></div>
           <div style="position:absolute;inset:0;
@@ -711,6 +773,103 @@
     <div style="text-align:center;margin-top:52px;">
       <a href="#" class="btn-outline" style="padding:13px 40px;">Ver todos los eventos →</a>
     </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════ SUSCRIPCIÓN ══════════════════════════════ -->
+<section id="suscripcion"
+         style="padding:108px 28px;position:relative;overflow:hidden;
+                background:linear-gradient(180deg,#0E0C0A 0%,#110E09 100%);">
+
+  <div style="position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 100%, rgba(241,162,36,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 20% 30%, rgba(218,102,53,0.04) 0%, transparent 55%);
+    pointer-events:none;"></div>
+
+  <!-- Top divider -->
+  <div style="position:absolute;top:0;left:0;right:0;height:1px;
+              background:linear-gradient(90deg,transparent,rgba(241,162,36,0.18),transparent);"></div>
+
+  <div style="max-width:680px;margin:0 auto;position:relative;z-index:1;text-align:center;">
+
+    <p style="font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.3em;
+              text-transform:uppercase;color:#DA6635;margin-bottom:14px;">Newsletter</p>
+    <h2 class="h-accent"
+        style="font-family:'Cinzel Decorative',serif;
+               font-size:clamp(1.6rem,3.8vw,2.4rem);
+               font-weight:900;letter-spacing:-0.03em;color:#FFFFFF;
+               margin-bottom:36px;">
+      Mantente al Día
+    </h2>
+    <p style="font-family:'Roboto',sans-serif;font-size:1rem;line-height:1.75;
+              color:rgba(255,255,255,0.48);margin-bottom:48px;margin-top:24px;">
+      Apúntate y sé el primero en enterarte de nuevos eventos, torneos y novedades de la comunidad.
+    </p>
+
+    <form onsubmit="return false;"
+          style="display:flex;flex-direction:column;gap:18px;max-width:500px;margin:0 auto;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <!-- Nombre -->
+        <div style="display:flex;flex-direction:column;gap:8px;text-align:left;">
+          <label style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.14em;
+                        text-transform:uppercase;color:rgba(241,162,36,0.65);">Nombre</label>
+          <input type="text" placeholder="Tu nombre"
+                 style="background:rgba(255,255,255,0.04);
+                        border:1px solid rgba(241,162,36,0.2);
+                        border-radius:8px;padding:13px 16px;
+                        font-family:'Roboto',sans-serif;font-size:0.9rem;
+                        color:#FFFFFF;outline:none;
+                        transition:border-color 0.2s ease,box-shadow 0.2s ease;"
+                 onfocus="this.style.borderColor='rgba(241,162,36,0.55)';this.style.boxShadow='0 0 0 3px rgba(241,162,36,0.08)'"
+                 onblur="this.style.borderColor='rgba(241,162,36,0.2)';this.style.boxShadow='none'">
+        </div>
+        <!-- Apellidos -->
+        <div style="display:flex;flex-direction:column;gap:8px;text-align:left;">
+          <label style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.14em;
+                        text-transform:uppercase;color:rgba(241,162,36,0.65);">Apellidos</label>
+          <input type="text" placeholder="Tus apellidos"
+                 style="background:rgba(255,255,255,0.04);
+                        border:1px solid rgba(241,162,36,0.2);
+                        border-radius:8px;padding:13px 16px;
+                        font-family:'Roboto',sans-serif;font-size:0.9rem;
+                        color:#FFFFFF;outline:none;
+                        transition:border-color 0.2s ease,box-shadow 0.2s ease;"
+                 onfocus="this.style.borderColor='rgba(241,162,36,0.55)';this.style.boxShadow='0 0 0 3px rgba(241,162,36,0.08)'"
+                 onblur="this.style.borderColor='rgba(241,162,36,0.2)';this.style.boxShadow='none'">
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div style="display:flex;flex-direction:column;gap:8px;text-align:left;">
+        <label style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.14em;
+                      text-transform:uppercase;color:rgba(241,162,36,0.65);">Correo electrónico</label>
+        <input type="email" placeholder="tu@correo.com"
+               style="background:rgba(255,255,255,0.04);
+                      border:1px solid rgba(241,162,36,0.2);
+                      border-radius:8px;padding:13px 16px;
+                      font-family:'Roboto',sans-serif;font-size:0.9rem;
+                      color:#FFFFFF;outline:none;
+                      transition:border-color 0.2s ease,box-shadow 0.2s ease;"
+               onfocus="this.style.borderColor='rgba(241,162,36,0.55)';this.style.boxShadow='0 0 0 3px rgba(241,162,36,0.08)'"
+               onblur="this.style.borderColor='rgba(241,162,36,0.2)';this.style.boxShadow='none'">
+      </div>
+
+      <button type="submit" class="btn-gold"
+              style="width:100%;padding:15px 32px;font-size:0.82rem;margin-top:6px;
+                     border:none;cursor:pointer;">
+        Suscribirme →
+      </button>
+
+    </form>
+
+    <p style="font-family:'Roboto',sans-serif;font-size:0.76rem;
+              color:rgba(255,255,255,0.22);margin-top:20px;letter-spacing:0.04em;">
+      Sin spam · Puedes darte de baja en cualquier momento
+    </p>
+
   </div>
 </section>
 
